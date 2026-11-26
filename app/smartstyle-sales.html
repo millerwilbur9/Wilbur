@@ -1,0 +1,747 @@
+<title>SmartStyle Sales</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: sticky top bar + filter strip, tabbed panels below. Black/blue/white brand, tabular numbers everywhere. */
+:root{
+  --bg:#ffffff; --panel:#f4f7fb; --ink:#0b1220; --muted:#566275; --line:#dbe3ee;
+  --blue:#0a5bd8; --blue-ink:#ffffff; --blue-soft:#e7f0ff; --ghost:#b9c7db;
+  --good:#127a3e; --good-soft:#e2f5e9; --warn:#995a00; --warn-soft:#fff2d9; --bad:#b42318; --bad-soft:#fde7e5;
+  --display:"Space Grotesk",system-ui,sans-serif; --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0a0f1a; --panel:#121a29; --ink:#edf1f7; --muted:#9eabc0; --line:#243049;
+  --blue:#5b9bff; --blue-ink:#06101f; --blue-soft:#13254a; --ghost:#3a4a66;
+  --good:#5fd08f; --good-soft:#10301e; --warn:#f0b450; --warn-soft:#33260c; --bad:#ff7a6e; --bad-soft:#3a1714; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a0f1a; --panel:#121a29; --ink:#edf1f7; --muted:#9eabc0; --line:#243049;
+  --blue:#5b9bff; --blue-ink:#06101f; --blue-soft:#13254a; --ghost:#3a4a66;
+  --good:#5fd08f; --good-soft:#10301e; --warn:#f0b450; --warn-soft:#33260c; --bad:#ff7a6e; --bad-soft:#3a1714; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+.tile.hero .muted{color:inherit;opacity:.75}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+.num,td.n,th.n{font-variant-numeric:tabular-nums}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ink);color:var(--bg)}
+.hin{max-width:1180px;margin:0 auto;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:700;font-size:1.15rem;letter-spacing:.01em;flex:1;min-width:160px}
+.brand small{display:block;font-family:var(--body);font-weight:500;font-size:.75rem;opacity:.7;letter-spacing:.04em}
+.syncinfo{font-size:.8rem;opacity:.85;text-align:right}
+button,select,input{font:inherit;color:inherit}
+.btn{background:var(--blue);color:var(--blue-ink);border:0;border-radius:6px;padding:8px 14px;font-weight:600;cursor:pointer}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sec{background:transparent;color:var(--ink);border:1px solid var(--line)}
+header .btn.sec{color:var(--bg);border-color:rgba(255,255,255,.3)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-block:18px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.filters label{display:flex;flex-direction:column;gap:3px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.filters select,.filters input,.field select,.field input{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 9px;font-size:.9rem;text-transform:none;letter-spacing:0;font-weight:500;color:var(--ink);min-width:0}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line)}
+nav.tabs a{padding:9px 14px;text-decoration:none;color:var(--muted);font-weight:600;border-bottom:3px solid transparent;white-space:nowrap}
+nav.tabs a[aria-current="page"]{color:var(--ink);border-color:var(--blue)}
+.banner{padding:12px 14px;border-radius:6px;font-size:.92rem}
+.banner.warn{background:var(--warn-soft);color:var(--warn)}.banner.bad{background:var(--bad-soft);color:var(--bad)}.banner.info{background:var(--blue-soft);color:var(--ink)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.tile{background:var(--panel);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile .k{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tile .v{font-family:var(--display);font-size:1.75rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
+.tile .d{font-size:.8rem;color:var(--muted)}
+.tile.hero{background:var(--ink);color:var(--bg)}.tile.hero .k,.tile.hero .d{color:inherit;opacity:.75}
+.up{color:var(--good)}.down{color:var(--bad)}
+.tile.hero .up,.tile.hero .down{color:inherit;opacity:1;font-weight:700}
+h2{font-family:var(--display);font-size:1.15rem;margin:0}
+.card{border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+td.n,th.n{text-align:right}
+tr.me td{background:var(--blue-soft)}
+.pill{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.o-won{background:var(--good-soft);color:var(--good)}.o-lost{background:var(--bad-soft);color:var(--bad)}.o-open{background:var(--warn-soft);color:var(--warn)}.o-other{background:var(--panel);color:var(--muted)}
+.bar{height:8px;background:var(--panel);border-radius:4px;overflow:hidden;min-width:80px}
+.bar>i{display:block;height:100%;background:var(--blue)}
+.bar.done>i{background:var(--good)}
+.chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:16px;font-size:.8rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.muted{color:var(--muted)}.small{font-size:.82rem}
+.empty{padding:40px 16px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+.empty p{max-width:60ch}
+.field{display:flex;flex-direction:column;gap:3px;font-size:.78rem;font-weight:600;color:var(--muted)}
+.form{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.prog{height:6px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden;width:160px}
+.prog>i{display:block;height:100%;background:var(--blue);width:0}
+a{color:var(--blue)}
+.lnk{background:none;border:0;padding:0;color:var(--blue);cursor:pointer;text-decoration:underline;font-size:.85rem}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}.syncinfo{text-align:left}.tile .v{font-size:1.45rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header><div class="hin">
+  <div class="brand">SmartStyle Sales<small>Live from Jobber</small></div>
+  <div class="syncinfo" id="syncinfo">Loading…</div>
+  <div class="prog" id="prog" hidden><i></i></div>
+  <button class="btn" id="syncBtn" hidden>Refresh from Jobber</button>
+</div></header>
+
+<div class="wrap">
+  <div id="banners"></div>
+  <div class="filters" id="filters">
+    <label>Period<select id="fPeriod">
+      <option value="today">Today</option><option value="yesterday">Yesterday</option>
+      <option value="week">This week</option><option value="lastweek">Last week</option>
+      <option value="month" selected>This month</option><option value="lastmonth">Last month</option>
+      <option value="quarter">This quarter</option><option value="year">This year</option>
+      <option value="lastyear">Last year</option><option value="custom">Custom…</option></select></label>
+    <label id="lFrom" hidden>From<input type="date" id="fFrom"></label>
+    <label id="lTo" hidden>To<input type="date" id="fTo"></label>
+    <label>Salesperson<select id="fRep"><option value="">Everyone</option></select></label>
+    <label>Division<select id="fDiv"><option value="">Both</option><option value="direct">Direct</option><option value="contractor">Contractor</option></select></label>
+    <label>Lead source<select id="fSrc"><option value="">All</option></select></label>
+  </div>
+  <nav class="tabs" id="tabs">
+    <a href="#overview">Overview</a><a href="#leaderboard">Leaderboard</a><a href="#sources">Lead sources</a>
+    <a href="#followup">Follow-up</a><a href="#goals">Goals</a><a href="#quotes">Quotes</a><a href="#rules">Rules</a>
+  </nav>
+  <main id="main"></main>
+</div>
+
+<script>
+(() => {
+"use strict";
+const SERVER = "Jobber";
+const SINCE = "2025-01-01T00:00:00Z";      // history kept from here
+const TZ = "America/New_York";
+const AUTO_REFRESH_MIN = 60;
+
+// ---------- small helpers
+const $ = s => document.querySelector(s);
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) el.append(k instanceof Node ? k : String(k));
+  return el;
+}
+const dayFmt = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" });
+const day = iso => iso ? dayFmt.format(new Date(iso)) : null;
+const addDays = (ds, n) => { const d = new Date(ds + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const shiftYear = (ds, n) => { let [y, m, d] = ds.split("-"); y = +y + n; if (m === "02" && d === "29") d = "28"; return `${y}-${m}-${d}`; };
+const daysBetween = (a, b) => Math.round((new Date(b + "T00:00:00Z") - new Date(a + "T00:00:00Z")) / 864e5);
+const money = x => x == null || isNaN(x) ? "—" : "$" + Math.round(x).toLocaleString("en-US");
+const pct = x => x == null || isNaN(x) ? "—" : Math.round(x * 100) + "%";
+const least = (...xs) => xs.filter(Boolean).sort()[0] || null;
+const numId = gid => { try { return atob(gid).split("/").pop(); } catch { return gid.replace(/[^A-Za-z0-9_-]/g, ""); } };
+const safeUrl = u => typeof u === "string" && u.startsWith("https://") ? u : null;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const tabId = Math.random().toString(36).slice(2);
+
+// ---------- state
+const S = {
+  quotes: {}, clients: {}, overrides: {}, goals: {}, manual: {}, meta: null,
+  bucketsSeen: new Set(), clientBucketsSeen: new Set(),
+  db: null, mcp: null, user: null, myName: null, canWrite: true,
+  loaded: { quotes: false, clients: false }, syncing: false, prog: null, error: null,
+};
+
+// ---------- business rules (same as docs/RULES.md)
+function parseDivision(v) {
+  if (!v) return null; const s = String(v).toLowerCase();
+  if (s.includes("contract")) return "contractor";
+  if (s.includes("direct") || s.includes("resid") || s.includes("home")) return "direct";
+  return null;
+}
+function derive(id, q) {
+  const c = S.clients[q.cid] || {};
+  const o = S.overrides[id] || {};
+  const st = q.st;
+  let outcome;
+  if (q.del) outcome = "deleted";
+  else if (o.outcome === "exclude") outcome = "excluded";
+  else if (o.outcome) outcome = o.outcome;
+  else if (st === "draft") outcome = "draft";
+  else if (!(q.t > 0)) outcome = "excluded";
+  else if (st === "approved" || st === "converted") outcome = "won";
+  else if (st === "archived" && q.a) outcome = "won";
+  else if (st === "archived") outcome = "lost";
+  else if (st === "awaiting_response" || st === "changes_requested") outcome = "open";
+  else outcome = "unknown";
+  const presentedAt = q.fp || least(q.s, q.a, q.cv);
+  const presentedOn = day(presentedAt);
+  const tags = (c.tags || []).map(t => String(t).toLowerCase());
+  const division = o.division || parseDivision(c.div) ||
+    (tags.some(t => t.startsWith("contractor")) || /^contractor/i.test(c.ls || "") ? "contractor" : "direct");
+  const won = outcome === "won";
+  return {
+    id, num: q.n, client: c.name || q.cn || "(no name)", phone: c.phone || "",
+    rep: o.rep || q.spn || "Unassigned", division, source: (c.ls || "").trim() || "Unknown",
+    status: st, outcome, quoted: q.fa ?? q.t, current: q.t, presentedOn,
+    soldOn: won ? day(q.a || q.cv || presentedAt) : null,
+    inRate: ["won", "open", "lost"].includes(outcome) && !!presentedOn,
+    uri: safeUrl(q.uri), manual: false, override: o.reason ? o : null,
+  };
+}
+function deriveManual(id, m) {
+  const won = m.outcome === "won";
+  return { id, num: m.ref || "Manual", client: m.client, phone: "", rep: m.rep || "Unassigned",
+    division: m.division || "direct", source: m.source || "Manual entry", status: "manual",
+    outcome: m.outcome, quoted: +m.total, current: +m.total, presentedOn: m.presentedOn,
+    soldOn: won ? (m.soldOn || m.presentedOn) : null, inRate: true, uri: null, manual: true };
+}
+let ROWS = [];
+function rebuild() {
+  ROWS = Object.entries(S.quotes).map(([id, q]) => derive(id, q))
+    .concat(Object.entries(S.manual).map(([id, m]) => deriveManual(id, m)))
+    .filter(r => r.outcome !== "deleted");
+}
+function metrics(rows, start, end) {
+  const pres = rows.filter(r => r.inRate && r.presentedOn >= start && r.presentedOn <= end);
+  const won = pres.filter(r => r.outcome === "won").length;
+  const open = pres.filter(r => r.outcome === "open").length;
+  const lost = pres.filter(r => r.outcome === "lost").length;
+  const sold = rows.filter(r => r.outcome === "won" && r.soldOn >= start && r.soldOn <= end);
+  const soldDollars = sold.reduce((a, r) => a + (r.current || 0), 0);
+  const quotedDollars = pres.reduce((a, r) => a + (r.quoted || 0), 0);
+  return { presented: pres.length, won, open, lost,
+    closeRate: pres.length ? won / pres.length : null,
+    avgQuote: pres.length ? quotedDollars / pres.length : null,
+    soldCount: sold.length, soldDollars, avgSale: sold.length ? soldDollars / sold.length : null };
+}
+
+// ---------- filters & periods
+function todayNY() { return day(new Date().toISOString()); }
+function period() {
+  const t = todayNY(), p = $("#fPeriod").value;
+  const [y, m] = t.split("-").map(Number);
+  const mStart = t.slice(0, 8) + "01";
+  const dow = (new Date(t + "T00:00:00Z").getUTCDay() + 6) % 7; // Monday = 0
+  const q0 = Math.floor((m - 1) / 3) * 3 + 1;
+  switch (p) {
+    case "today": return [t, t, "Today"];
+    case "yesterday": { const d = addDays(t, -1); return [d, d, "Yesterday"]; }
+    case "week": return [addDays(t, -dow), t, "This week"];
+    case "lastweek": return [addDays(t, -dow - 7), addDays(t, -dow - 1), "Last week"];
+    case "month": return [mStart, t, "This month"];
+    case "lastmonth": { const e = addDays(mStart, -1); return [e.slice(0, 8) + "01", e, "Last month"]; }
+    case "quarter": return [`${y}-${String(q0).padStart(2, "0")}-01`, t, "This quarter"];
+    case "year": return [`${y}-01-01`, t, "This year"];
+    case "lastyear": return [`${y - 1}-01-01`, `${y - 1}-12-31`, "Last year"];
+    case "custom": { const a = $("#fFrom").value || mStart, b = $("#fTo").value || t; return [a <= b ? a : b, a <= b ? b : a, "Custom range"]; }
+  }
+}
+function filtered(ignoreRep) {
+  const rep = $("#fRep").value, div = $("#fDiv").value, src = $("#fSrc").value;
+  return ROWS.filter(r => (ignoreRep || !rep || r.rep === rep) && (!div || r.division === div) && (!src || r.source === src));
+}
+function fillSelect(sel, values, allLabel) {
+  const cur = sel.value;
+  sel.replaceChildren(h("option", { value: "" }, allLabel), ...values.map(v => h("option", { value: v }, v)));
+  sel.value = values.includes(cur) ? cur : "";
+}
+
+// ---------- rendering
+const TABS = ["overview", "leaderboard", "sources", "followup", "goals", "quotes", "rules"];
+function currentTab() { const t = location.hash.slice(1); return TABS.includes(t) ? t : "overview"; }
+function delta(cur, prev, kind) {
+  if (cur == null || prev == null) return h("span", { class: "muted" }, "no data last year");
+  const d = cur - prev;
+  if (Math.abs(d) < 1e-9) return h("span", null, "same as last year");
+  const sign = d > 0 ? "+" : "−";
+  const txt = kind === "pct" ? `${sign}${Math.abs(Math.round(d * 100))} pts` :
+    prev ? `${sign}${Math.abs(Math.round(d / prev * 100))}%` :
+    kind === "count" ? `${sign}${Math.abs(d)}` : `${sign}${money(Math.abs(d))}`;
+  return h("span", { class: d > 0 ? "up" : "down" }, txt + " vs last year");
+}
+function tile(k, v, d, hero) { return h("div", { class: "tile" + (hero ? " hero" : "") }, h("div", { class: "k" }, k), h("div", { class: "v" }, v), h("div", { class: "d" }, d)); }
+
+function render() {
+  rebuild();
+  const reps = [...new Set(ROWS.map(r => r.rep))].sort();
+  fillSelect($("#fRep"), reps, "Everyone");
+  if (S.myName && !S.repDefaulted && reps.includes(S.myName)) { $("#fRep").value = S.myName; S.repDefaulted = true; }
+  fillSelect($("#fSrc"), [...new Set(ROWS.map(r => r.source))].sort(), "All");
+  const custom = $("#fPeriod").value === "custom";
+  $("#lFrom").hidden = $("#lTo").hidden = !custom;
+  for (const a of document.querySelectorAll("#tabs a")) a.toggleAttribute("aria-current", a.getAttribute("href") === "#" + currentTab()) && a.setAttribute("aria-current", "page");
+  renderHeader(); renderBanners();
+  const main = $("#main");
+  if (!S.loaded.quotes) { main.replaceChildren(h("p", { class: "muted" }, "Loading saved numbers…")); return; }
+  if (!Object.keys(S.quotes).length && currentTab() !== "rules") { main.replaceChildren(emptyState()); return; }
+  const fn = { overview, leaderboard, sources, followup, goals, quotes, rules }[currentTab()];
+  main.replaceChildren(fn());
+}
+
+function emptyState() {
+  const box = h("div", { class: "empty card" },
+    h("h2", null, "No sales data yet"),
+    h("p", null, "Click below to load your quotes from Jobber, going back to January 2025. The first load reads every quote and every client one at a time. It takes about 10–20 minutes. Keep this page open while it runs. After that, refreshes take under a minute."));
+  if (S.mcp) box.append(h("button", { class: "btn", onclick: () => sync(true), disabled: S.syncing }, S.syncing ? "Loading…" : "Load my Jobber data"));
+  else box.append(h("p", { class: "muted" }, "This view can't reach Jobber. Open the page on claude.ai while signed in with Jobber connected."));
+  return box;
+}
+
+function overview() {
+  const [s, e, label] = period();
+  const rows = filtered();
+  const m = metrics(rows, s, e), ly = metrics(rows, shiftYear(s, -1), shiftYear(e, -1));
+  const openRows = rows.filter(r => r.outcome === "open" && r.inRate);
+  const target = 0.40;
+  const wrap = h("div", { style: "display:flex;flex-direction:column;gap:18px" });
+  wrap.append(h("div", { class: "small muted" }, `${label}: ${s} to ${e}${$("#fRep").value ? " · " + $("#fRep").value : ""}`));
+  wrap.append(h("div", { class: "tiles" },
+    tile("Close rate", pct(m.closeRate), h("span", null, delta(m.closeRate, ly.closeRate, "pct"), ` · goal ${pct(target)}`), true),
+    tile("Sold", money(m.soldDollars), delta(m.soldDollars, ly.soldDollars)),
+    tile("Quotes presented", m.presented.toLocaleString(), delta(m.presented, ly.presented, "count")),
+    tile("Won / open / lost", `${m.won} / ${m.open} / ${m.lost}`, "of quotes presented"),
+    tile("Avg quote", money(m.avgQuote), delta(m.avgQuote, ly.avgQuote)),
+    tile("Avg sale", money(m.avgSale), delta(m.avgSale, ly.avgSale)),
+    tile("Open quotes (all)", openRows.length.toLocaleString(), money(openRows.reduce((a, r) => a + r.current, 0)) + " waiting"),
+  ));
+  wrap.append(monthChart(rows, e.slice(0, 4)));
+  const g = h("div", { class: "grid2" });
+  g.append(groupCard("Direct vs Contractor", rows, s, e, r => r.division === "direct" ? "Direct" : "Contractor"));
+  g.append(groupCard("Top lead sources", rows, s, e, r => r.source, 6));
+  wrap.append(g);
+  return wrap;
+}
+
+function monthChart(rows, year) {
+  const ly = String(+year - 1);
+  const sum = (y, mm) => rows.filter(r => r.outcome === "won" && r.soldOn && r.soldOn.startsWith(`${y}-${mm}`)).reduce((a, r) => a + r.current, 0);
+  const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
+  const cur = months.map(mm => sum(year, mm)), prev = months.map(mm => sum(ly, mm));
+  const max = Math.max(1, ...cur, ...prev);
+  const nice = (() => { const p = Math.pow(10, Math.floor(Math.log10(max))); return Math.ceil(max / p) * p; })();
+  const W = 720, H = 240, L = 56, B = 26, T = 10, R = 8, cw = (W - L - R) / 12;
+  const y = v => T + (H - T - B) * (1 - v / nice);
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg"); svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", `Sold dollars by month, ${year} vs ${ly}`);
+  const el = (n, a, txt) => { const x = document.createElementNS(ns, n); for (const k in a) x.setAttribute(k, a[k]); if (txt != null) x.textContent = txt; svg.append(x); return x; };
+  for (let i = 0; i <= 4; i++) {
+    const v = nice * i / 4;
+    el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: "var(--line)", "stroke-width": 1 });
+    el("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", "font-size": 11, fill: "var(--muted)" }, v >= 1000 ? "$" + (v % 1000 ? (v / 1000).toFixed(1) : v / 1000) + "k" : "$" + v);
+  }
+  months.forEach((mm, i) => {
+    const x0 = L + i * cw, bw = cw * 0.36;
+    el("rect", { x: x0 + cw * 0.12, y: y(prev[i]), width: bw, height: Math.max(0, y(0) - y(prev[i])), fill: "var(--ghost)", rx: 2 }).append(Object.assign(document.createElementNS(ns, "title"), { textContent: `${ly}-${mm}: ${money(prev[i])}` }));
+    el("rect", { x: x0 + cw * 0.12 + bw + 2, y: y(cur[i]), width: bw, height: Math.max(0, y(0) - y(cur[i])), fill: "var(--blue)", rx: 2 }).append(Object.assign(document.createElementNS(ns, "title"), { textContent: `${year}-${mm}: ${money(cur[i])}` }));
+    el("text", { x: x0 + cw / 2, y: H - 8, "text-anchor": "middle", "font-size": 11, fill: "var(--muted)" }, "JFMAMJJASOND"[i]);
+  });
+  return h("div", { class: "card chart" }, h("h2", null, `Sold by month — ${year} vs ${ly}`),
+    h("div", { class: "legend" }, h("span", null, h("i", { style: "background:var(--blue)" }), year), h("span", null, h("i", { style: "background:var(--ghost)" }), ly)),
+    svg);
+}
+
+function groupTable(rows, s, e, key, limit, highlight) {
+  const groups = {};
+  for (const r of rows) (groups[key(r)] ||= []).push(r);
+  let list = Object.entries(groups).map(([k, rs]) => [k, metrics(rs, s, e)])
+    .filter(([, m]) => m.presented || m.soldCount)
+    .sort((a, b) => b[1].soldDollars - a[1].soldDollars || b[1].presented - a[1].presented);
+  if (limit) list = list.slice(0, limit);
+  if (!list.length) return h("p", { class: "muted" }, "Nothing in this period.");
+  return h("div", { class: "tbl" }, h("table", null,
+    h("thead", null, h("tr", null, h("th", null, ""), h("th", { class: "n" }, "Presented"), h("th", { class: "n" }, "Won"), h("th", { class: "n" }, "Close rate"), h("th", { class: "n" }, "Sold"), h("th", { class: "n" }, "Avg sale"))),
+    h("tbody", null, list.map(([k, m]) => h("tr", { class: highlight && k === highlight ? "me" : null },
+      h("td", null, k), h("td", { class: "n" }, m.presented), h("td", { class: "n" }, m.won),
+      h("td", { class: "n" }, pct(m.closeRate)), h("td", { class: "n" }, money(m.soldDollars)), h("td", { class: "n" }, money(m.avgSale)))))));
+}
+function groupCard(title, rows, s, e, key, limit) { return h("div", { class: "card" }, h("h2", null, title), groupTable(rows, s, e, key, limit)); }
+
+function leaderboard() {
+  const [s, e, label] = period();
+  return h("div", { class: "card" }, h("h2", null, `Leaderboard — ${label}`),
+    h("p", { class: "small muted" }, "Ranked by dollars sold. Close rate counts quotes presented in this period. The salesperson filter doesn't apply here."),
+    groupTable(filtered(true), s, e, r => r.rep, null, $("#fRep").value || S.myName));
+}
+function sources() {
+  const [s, e, label] = period();
+  return h("div", { class: "card" }, h("h2", null, `Lead sources — ${label}`),
+    h("p", { class: "small muted" }, "Lead source comes from the Jobber client record. Clean up spelling in Jobber and it updates here on the next refresh."),
+    groupTable(filtered(), s, e, r => r.source));
+}
+
+function followup() {
+  const t = todayNY();
+  const rows = filtered().filter(r => r.outcome === "open" && r.inRate)
+    .map(r => ({ ...r, days: daysBetween(r.presentedOn, t) })).sort((a, b) => b.days - a.days);
+  const card = h("div", { class: "card" }, h("h2", null, `Open quotes — ${rows.length} (${money(rows.reduce((a, r) => a + r.current, 0))})`),
+    h("p", { class: "small muted" }, "Oldest first. Quotes over 45 days old with no answer should be archived in Jobber with a reason, or moved to Lead Recovery."));
+  if (!rows.length) { card.append(h("p", null, "No open quotes.")); return card; }
+  card.append(h("div", { class: "tbl" }, h("table", null,
+    h("thead", null, h("tr", null, ["Quote", "Client", "Phone", "Salesperson", "Presented", "Days", "Amount"].map((x, i) => h("th", { class: i >= 5 ? "n" : null }, x)))),
+    h("tbody", null, rows.map(r => h("tr", null,
+      h("td", null, r.uri ? h("a", { href: r.uri, target: "_blank", rel: "noopener" }, "#" + r.num) : "#" + r.num),
+      h("td", null, r.client), h("td", null, r.phone), h("td", null, r.rep), h("td", null, r.presentedOn),
+      h("td", { class: "n" }, h("span", { class: "pill " + (r.days > 45 ? "o-lost" : r.days > 7 ? "o-open" : "o-other") }, r.days)),
+      h("td", { class: "n" }, money(r.current))))))));
+  return card;
+}
+
+// ---- goals
+const METRICS = { sold_dollars: "Sold $", sold_count: "Sales (#)", presented_count: "Quotes presented", close_rate: "Close rate" };
+function goals() {
+  const t = todayNY(), month = t.slice(0, 7);
+  const list = Object.entries(S.goals).sort((a, b) => (b[1].month || "").localeCompare(a[1].month || ""));
+  const card = h("div", { class: "card" }, h("h2", null, "Monthly goals"));
+  if (!list.length) card.append(h("p", { class: "muted" }, "No goals yet. Add one below. Example: Jackson, Close rate, 40."));
+  else card.append(h("div", { class: "tbl" }, h("table", null,
+    h("thead", null, h("tr", null, h("th", null, "Month"), h("th", null, "Who"), h("th", null, "Goal"), h("th", { class: "n" }, "Target"), h("th", { class: "n" }, "Actual"), h("th", null, "Progress"), h("th", null, ""))),
+    h("tbody", null, list.map(([id, g]) => {
+      const s = g.month + "-01", e = addDays(shiftMonth(g.month, 1) + "-01", -1);
+      const rows = ROWS.filter(r => g.who === "Company" || r.rep === g.who);
+      const m = metrics(rows, s, e);
+      const actual = { sold_dollars: m.soldDollars, sold_count: m.soldCount, presented_count: m.presented, close_rate: m.closeRate }[g.metric];
+      const fmt = g.metric === "close_rate" ? pct : g.metric === "sold_dollars" ? money : x => x == null ? "—" : x;
+      const ratio = actual == null ? 0 : Math.min(1, actual / g.target);
+      return h("tr", null, h("td", null, g.month), h("td", null, g.who), h("td", null, METRICS[g.metric]),
+        h("td", { class: "n" }, fmt(g.target)), h("td", { class: "n" }, fmt(actual)),
+        h("td", null, h("div", { class: "bar" + (ratio >= 1 ? " done" : "") }, h("i", { style: `width:${Math.round(ratio * 100)}%` }))),
+        h("td", null, S.canWrite ? h("button", { class: "lnk", onclick: () => saveGoals(id, null) }, "Remove") : ""));
+    })))));
+  if (S.canWrite && S.db) {
+    const reps = ["Company", ...new Set(ROWS.map(r => r.rep))];
+    card.append(h("div", { class: "form" },
+      h("label", { class: "field" }, "Month", h("input", { type: "month", id: "gMonth", value: month })),
+      h("label", { class: "field" }, "Who", h("select", { id: "gWho" }, reps.map(r => h("option", null, r)))),
+      h("label", { class: "field" }, "Goal", h("select", { id: "gMetric" }, Object.entries(METRICS).map(([k, v]) => h("option", { value: k }, v)))),
+      h("label", { class: "field" }, "Target (close rate as %, e.g. 40)", h("input", { id: "gTarget", type: "number", min: "0", step: "any", inputmode: "decimal" })),
+      h("button", { class: "btn", onclick: () => {
+        const metric = $("#gMetric").value; let target = parseFloat($("#gTarget").value);
+        if (!(target > 0) || !$("#gMonth").value) return;
+        if (metric === "close_rate" && target > 1) target = target / 100;
+        saveGoals("g" + Date.now().toString(36), { month: $("#gMonth").value, who: $("#gWho").value, metric, target });
+      } }, "Add goal")));
+  }
+  return card;
+}
+function shiftMonth(ym, n) { let [y, m] = ym.split("-").map(Number); m += n; while (m > 12) { m -= 12; y++; } while (m < 1) { m += 12; y--; } return `${y}-${String(m).padStart(2, "0")}`; }
+async function saveGoals(id, g) {
+  const next = { ...S.goals }; if (g) next[id] = g; else delete next[id];
+  try { await S.db.doc("settings/goals").set({ g: next }); } catch (e) { showError("Couldn't save the goal: " + (e.message || e.code)); }
+}
+
+// ---- quotes list + corrections
+let quoteSearch = "";
+function quotes() {
+  const [s, e, label] = period();
+  const q = quoteSearch.toLowerCase();
+  const rows = filtered().filter(r => (r.presentedOn && r.presentedOn >= s && r.presentedOn <= e) || (r.soldOn && r.soldOn >= s && r.soldOn <= e))
+    .filter(r => !q || `${r.num} ${r.client}`.toLowerCase().includes(q))
+    .sort((a, b) => (b.presentedOn || "").localeCompare(a.presentedOn || ""));
+  const card = h("div", { class: "card" }, h("h2", null, `Quotes — ${label} (${rows.length})`),
+    h("p", { class: "small muted" }, "Everything presented or sold in this period. Use Correct to fix a quote that counts wrong, like a duplicate or the wrong division. Every correction keeps a reason."),
+    h("input", { type: "search", placeholder: "Search quote # or client", value: quoteSearch, id: "qSearch", style: "max-width:320px;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)",
+      oninput: ev => { quoteSearch = ev.target.value; const pos = ev.target.selectionStart; render(); const el = $("#qSearch"); if (el) { el.focus(); el.setSelectionRange(pos, pos); } } }));
+  card.append(h("div", { class: "tbl" }, h("table", null,
+    h("thead", null, h("tr", null, ["Quote", "Client", "Salesperson", "Division", "Presented", "Sold", "Result", "Amount", ""].map((x, i) => h("th", { class: i === 7 ? "n" : null }, x)))),
+    h("tbody", null, rows.slice(0, 400).map(r => h("tr", null,
+      h("td", null, r.uri ? h("a", { href: r.uri, target: "_blank", rel: "noopener" }, "#" + r.num) : r.num),
+      h("td", null, r.client), h("td", null, r.rep), h("td", null, r.division === "direct" ? "Direct" : "Contractor"),
+      h("td", null, r.presentedOn || "—"), h("td", null, r.soldOn || "—"),
+      h("td", null, h("span", { class: "pill " + ({ won: "o-won", lost: "o-lost", open: "o-open" }[r.outcome] || "o-other") }, r.outcome), r.override ? h("span", { class: "small muted", title: r.override.reason }, " ✎") : ""),
+      h("td", { class: "n" }, money(r.current)),
+      h("td", null, S.canWrite && S.db && !r.manual ? h("button", { class: "lnk", onclick: () => openCorrect(r) }, "Correct") : "")))))));
+  if (rows.length > 400) card.append(h("p", { class: "small muted" }, "Showing the newest 400. Narrow the period or search."));
+  if (S.canWrite && S.db) card.append(manualForm());
+  return card;
+}
+function manualForm() {
+  const reps = [...new Set(ROWS.map(r => r.rep))].sort();
+  const list = Object.entries(S.manual);
+  const box = h("div", { class: "card", style: "background:var(--panel)" }, h("h2", null, "Deals not in Jobber"),
+    h("p", { class: "small muted" }, "Only for real deals that never went into Jobber, like a home show sale. They count everywhere, marked as manual."));
+  if (list.length) box.append(h("div", { class: "tbl" }, h("table", null, h("tbody", null, list.map(([id, m]) => h("tr", null,
+    h("td", null, m.client), h("td", null, m.rep), h("td", null, m.presentedOn), h("td", null, m.outcome), h("td", { class: "n" }, money(+m.total)),
+    h("td", null, h("button", { class: "lnk", onclick: () => saveManual(id, null) }, "Remove"))))))));
+  box.append(h("div", { class: "form" },
+    h("label", { class: "field" }, "Client", h("input", { id: "mClient" })),
+    h("label", { class: "field" }, "Salesperson", h("select", { id: "mRep" }, reps.map(r => h("option", null, r)))),
+    h("label", { class: "field" }, "Division", h("select", { id: "mDiv" }, h("option", { value: "direct" }, "Direct"), h("option", { value: "contractor" }, "Contractor"))),
+    h("label", { class: "field" }, "Lead source", h("input", { id: "mSrc", value: "Manual entry" })),
+    h("label", { class: "field" }, "Date presented", h("input", { id: "mDate", type: "date", value: todayNY() })),
+    h("label", { class: "field" }, "Result", h("select", { id: "mOutcome" }, ["won", "open", "lost"].map(o => h("option", null, o)))),
+    h("label", { class: "field" }, "Amount $", h("input", { id: "mTotal", type: "number", min: "0", step: "any", inputmode: "decimal" })),
+    h("button", { class: "btn", onclick: () => {
+      const client = $("#mClient").value.trim(), total = parseFloat($("#mTotal").value);
+      if (!client || !(total > 0)) return;
+      saveManual("m" + Date.now().toString(36), { client, rep: $("#mRep").value, division: $("#mDiv").value, source: $("#mSrc").value.trim() || "Manual entry",
+        presentedOn: $("#mDate").value, soldOn: $("#mDate").value, outcome: $("#mOutcome").value, total, by: S.myName || "" });
+    } }, "Add deal")));
+  return box;
+}
+async function saveManual(id, m) {
+  const next = { ...S.manual }; if (m) next[id] = m; else delete next[id];
+  try { await S.db.doc("settings/manual").set({ m: next }); } catch (e) { showError("Couldn't save: " + (e.message || e.code)); }
+}
+function openCorrect(r) {
+  const o = S.overrides[r.id] || {};
+  const dlg = h("div", { class: "card", style: "background:var(--panel)" },
+    h("h2", null, `Correct quote #${r.num} — ${r.client}`),
+    h("div", { class: "form" },
+      h("label", { class: "field" }, "Count it as", h("select", { id: "oOutcome" }, [["", "Follow Jobber (no change)"], ["won", "Won"], ["lost", "Lost"], ["open", "Open"], ["exclude", "Don't count it"]].map(([v, t]) => h("option", { value: v, selected: (o.outcome || "") === v }, t)))),
+      h("label", { class: "field" }, "Division", h("select", { id: "oDiv" }, [["", "Follow Jobber"], ["direct", "Direct"], ["contractor", "Contractor"]].map(([v, t]) => h("option", { value: v, selected: (o.division || "") === v }, t)))),
+      h("label", { class: "field", style: "flex:1;min-width:220px" }, "Reason (required)", h("input", { id: "oReason", value: o.reason || "" }))),
+    h("div", { class: "form" },
+      h("button", { class: "btn", onclick: async () => {
+        const outcome = $("#oOutcome").value, division = $("#oDiv").value, reason = $("#oReason").value.trim();
+        const next = { ...S.overrides };
+        if (!outcome && !division) delete next[r.id];
+        else { if (!reason) { $("#oReason").focus(); return; } next[r.id] = { outcome: outcome || null, division: division || null, reason, by: S.myName || "unknown", at: new Date().toISOString() }; }
+        try { await S.db.doc("settings/overrides").set({ o: next }); render(); } catch (e) { showError("Couldn't save: " + (e.message || e.code)); }
+      } }, "Save"),
+      h("button", { class: "btn sec", onclick: () => render() }, "Cancel")));
+  $("#main").prepend(dlg); dlg.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function rules() {
+  const li = (b, t) => h("li", null, h("b", null, b), " " + t);
+  return h("div", { class: "card", style: "max-width:760px" }, h("h2", null, "How the numbers are counted"),
+    h("ul", { style: "display:flex;flex-direction:column;gap:6px;padding-left:1.2em;margin:0" },
+      li("Won:", "status is Approved or Converted, or it was approved and later archived."),
+      li("Open:", "Awaiting response or Changes requested. This includes a quote that was approved and then re-opened."),
+      li("Lost:", "archived without ever being approved."),
+      li("Not counted:", "drafts, $0 quotes, deleted quotes, and anything you mark \"Don't count it.\""),
+      li("Presented date:", "the first time the customer saw the price. That's the sent date, or the approval date for kitchen-table closes that were never sent. It's locked once set, so a resend doesn't move it."),
+      li("Close rate:", "won ÷ quotes presented in the period (won + open + lost)."),
+      li("Sold:", "counted on the day it was approved, at the current Jobber total."),
+      li("Division:", "your correction first, then the Jobber client field \"Division,\" then a \"Contractor\" tag or lead source, otherwise Direct."),
+      li("Dates:", "Eastern time (Middlebury / South Bend)."),
+      li("History:", "quotes created since January 1, 2025.")),
+    h("h2", null, "Keeping it accurate"),
+    h("ul", { style: "display:flex;flex-direction:column;gap:6px;padding-left:1.2em;margin:0" },
+      h("li", null, "The page refreshes from Jobber when someone with Jobber connected opens it and the data is over an hour old. You can also click Refresh from Jobber at any time."),
+      h("li", null, "Each refresh lists every quote in Jobber. Changed quotes are re-read, and quotes that vanished are double-checked before they're marked deleted."),
+      h("li", null, "Set the client's \"Division\" field in Jobber. Without it, the page has to guess from tags and lead source.")));
+}
+
+// ---------- header, banners
+function ago(iso) { if (!iso) return "never"; const m = Math.round((Date.now() - new Date(iso)) / 60000); return m < 1 ? "just now" : m < 60 ? m + " min ago" : m < 1440 ? Math.round(m / 60) + " hr ago" : Math.round(m / 1440) + " days ago"; }
+function renderHeader() {
+  const info = $("#syncinfo"), btn = $("#syncBtn"), prog = $("#prog");
+  btn.hidden = !S.mcp || !S.db;
+  btn.disabled = S.syncing;
+  btn.textContent = S.syncing ? "Refreshing…" : "Refresh from Jobber";
+  if (S.syncing && S.prog) {
+    info.textContent = S.prog.text; prog.hidden = false;
+    prog.firstChild.style.width = Math.round(100 * S.prog.done / Math.max(1, S.prog.total)) + "%";
+  } else {
+    prog.hidden = true;
+    const m = S.meta;
+    info.textContent = m && m.at ? `Updated ${ago(m.at)}${m.count ? " · " + m.count.toLocaleString() + " quotes" : ""}` : "Not loaded yet";
+  }
+}
+function renderBanners() {
+  const b = $("#banners"); b.replaceChildren();
+  if (S.error) b.append(h("div", { class: "banner bad" }, S.error, " ", h("button", { class: "lnk", onclick: () => { S.error = null; render(); } }, "Dismiss")));
+  const m = S.meta;
+  if (m && m.at && Date.now() - new Date(m.at) > 6 * 3600e3 && !S.syncing)
+    b.append(h("div", { class: "banner warn" }, `Numbers were last refreshed ${ago(m.at)}. ${S.mcp ? "Click Refresh from Jobber." : "Someone with Jobber connected needs to open this page."}`));
+  if (m && m.failed) b.append(h("div", { class: "banner warn" }, `The last refresh couldn't read ${m.failed} quote(s). They'll be retried on the next refresh.`));
+  if (!S.db) b.append(h("div", { class: "banner info" }, "Saved data isn't available in this view. Open the page on claude.ai while signed in."));
+}
+function showError(msg) { S.error = msg; render(); }
+
+// ---------- sync from Jobber
+const STATUSES = new Set(["draft", "awaiting_response", "changes_requested", "approved", "converted", "archived"]);
+class StopSync extends Error {}
+async function call(tool, input) {
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    try { return (await S.mcp.callTool(SERVER, tool, input, { cache: false })).payload; }
+    catch (e) {
+      const code = e && e.code;
+      if (["needs_reauth"].includes(code)) throw new StopSync("Jobber needs to be reconnected: claude.ai → Settings → Connectors → Jobber.");
+      if (["server_not_connected", "selection_required"].includes(code)) throw new StopSync("Jobber isn't connected for you. Add it under claude.ai → Settings → Connectors.");
+      if (["not_in_manifest", "approval_required", "blocked_by_policy", "not_granted", "capability_disabled"].includes(code)) throw new StopSync("This page wasn't allowed to read Jobber. Allow it in the page's Permissions menu, then click Refresh.");
+      const msg = String((e && e.message) || "");
+      const transient = e.retryable || code === "server_unavailable" || code === "upstream_error" || /throttl|rate|timeout|temporar/i.test(msg);
+      if (code === "tool_error" && !transient) throw e;
+      if (attempt === 4 || !transient) throw e;
+      await sleep((e.retryAfterMs || 3000 * attempt) + Math.random() * 1000);
+    }
+  }
+}
+async function pool(items, n, fn) {
+  let i = 0; const workers = Array.from({ length: n }, async () => { while (i < items.length) { const k = i++; await fn(items[k], k); } });
+  await Promise.all(workers);
+}
+const bucketOf = createdAt => (day(createdAt) || "0000-00").slice(0, 7);
+const clientBucket = cid => "b" + String(Number(cid) % 16).padStart(2, "0");
+
+async function flush(pendingQ, pendingC) {
+  for (const [b, map] of Object.entries(pendingQ)) {
+    if (!Object.keys(map).length) continue;
+    const ref = S.db.doc("quotes/" + b);
+    if (S.bucketsSeen.has(b)) await ref.update({ q: map }); else { const cur = await ref.get(); if (cur.exists) await ref.update({ q: map }); else await ref.set({ q: map }); S.bucketsSeen.add(b); }
+    pendingQ[b] = {};
+  }
+  for (const [b, map] of Object.entries(pendingC)) {
+    if (!Object.keys(map).length) continue;
+    const ref = S.db.doc("clients/" + b);
+    if (S.clientBucketsSeen.has(b)) await ref.update({ c: map }); else { const cur = await ref.get(); if (cur.exists) await ref.update({ c: map }); else await ref.set({ c: map }); S.clientBucketsSeen.add(b); }
+    pendingC[b] = {};
+  }
+}
+
+async function sync(manual) {
+  if (S.syncing || !S.mcp || !S.db) return;
+  const lock = S.db.doc("meta/lock");
+  try {
+    const got = await lock.acquire({ holder: tabId, ttlMs: 600000 });
+    if (!got.acquired) { if (manual) showError("Someone else is refreshing right now. Try again in a few minutes."); return; }
+  } catch (e) { if (manual) showError("Couldn't start the refresh: " + (e.message || e.code)); return; }
+  S.syncing = true; S.error = null; S.prog = { done: 0, total: 1, text: "Listing quotes in Jobber…" }; render();
+  const renew = setInterval(() => lock.acquire({ holder: tabId, ttlMs: 600000 }).catch(() => {}), 240000);
+  const pendingQ = {}, pendingC = {};
+  let failed = 0, deleted = 0;
+  try {
+    // 1. List every quote since SINCE.
+    const listed = []; let cursor;
+    do {
+      const p = await call("search_quotes", { limit: 100, sort: "createdAt", dateRange: { after: SINCE }, ...(cursor ? { cursor } : {}) });
+      const page = (p && p.quotes) || [];
+      listed.push(...page);
+      S.prog.text = `Listing quotes in Jobber… ${listed.length}`; renderHeader();
+      cursor = p && p.pageInfo && p.pageInfo.hasNextPage ? p.pageInfo.endCursor : null;
+    } while (cursor);
+    const listedIds = new Set(listed.map(q => numId(q.id)));
+    const known = Object.keys(S.quotes).filter(id => !S.quotes[id].del);
+    const missing = known.filter(id => !listedIds.has(id));
+    if (known.length > 50 && missing.length > Math.max(25, known.length * 0.1))
+      throw new StopSync(`Jobber returned ${listed.length} quotes, but ${missing.length} saved quotes are missing. That looks like a Jobber problem, not real deletes. Nothing was changed. Try again later.`);
+
+    // 2. Re-read new or changed quotes (salesperson + transition dates live on the detail).
+    const changed = listed.filter(q => { const cur = S.quotes[numId(q.id)]; return !cur || !cur.d || cur.u !== q.updatedAt; });
+    const clientsToRead = new Set();
+    S.prog = { done: 0, total: changed.length + 1, text: "" };
+    let sinceFlush = 0;
+    await pool(changed, 3, async (lq) => {
+      const id = numId(lq.id);
+      try {
+        const d = (await call("get_quote", { quoteId: lq.id })).quote;
+        const st = String(d.status || lq.status || "").toLowerCase();
+        if (!STATUSES.has(st)) throw new Error("unknown status " + st);
+        const prev = S.quotes[id] || {};
+        const lt = d.lastTransitioned || {};
+        const s = d.sentAt || lq.sentAt || null, a = lt.approvedAt || lq.approvedAt || null, cv = lt.convertedAt || null;
+        const total = Number((d.amounts && d.amounts.total) ?? lq.total ?? 0);
+        const fp = prev.fp || least(s, a, cv);
+        const rec = { n: d.quoteNumber || lq.quoteNumber, st, c: d.createdAt || lq.createdAt, u: lq.updatedAt, s, a, cv,
+          t: total, cid: d.client ? numId(d.client.id) : (lq.client ? numId(lq.client.id) : null),
+          cn: (d.client && d.client.name) || (lq.client && lq.client.name) || null,
+          spn: d.salesperson && d.salesperson.name ? d.salesperson.name : null,
+          uri: d.jobberWebUri || lq.jobberWebUri || null, fp, fa: prev.fa ?? (fp ? total : null), d: 1, del: false };
+        const b = bucketOf(rec.c);
+        (pendingQ[b] ||= {})[id] = rec;
+        S.quotes[id] = rec;
+        if (lq.client && lq.client.id) clientsToRead.add(lq.client.id);
+      } catch (e) { if (e instanceof StopSync) throw e; failed++; }
+      S.prog.done++; S.prog.text = `Reading quotes ${S.prog.done} of ${changed.length}`; renderHeader();
+      if (++sinceFlush >= 40) { sinceFlush = 0; await flushSafe(); }
+    });
+    await flushSafe();
+
+    // 3. Clients of changed quotes, plus any never read.
+    for (const q of listed) if (q.client && !S.clients[numId(q.client.id)]) clientsToRead.add(q.client.id);
+    const cl = [...clientsToRead];
+    S.prog = { done: 0, total: cl.length + 1, text: "" };
+    await pool(cl, 3, async (gid) => {
+      try {
+        const c = (await call("get_client", { clientId: gid })).client;
+        const id = numId(c.id);
+        const div = (c.customFields || []).find(f => String(f.label || "").trim().toLowerCase() === "division");
+        const rec = { name: c.name || c.companyName || "(no name)", ls: c.leadSource || (c.sourceAttribution && c.sourceAttribution.displayLeadSource) || "",
+          tags: ((c.tags && c.tags.nodes) || []).map(t => t.label).filter(Boolean),
+          div: div && typeof div.value === "string" ? div.value : "", phone: (c.phones && (c.phones.find(p => p.primary) || c.phones[0]) || {}).friendly || c.phone || "",
+          co: !!c.isCompany };
+        (pendingC[clientBucket(id)] ||= {})[id] = rec;
+        S.clients[id] = rec;
+      } catch (e) { if (e instanceof StopSync) throw e; failed++; }
+      S.prog.done++; S.prog.text = `Reading clients ${S.prog.done} of ${cl.length}`; renderHeader();
+      if (S.prog.done % 40 === 0) await flushSafe();
+    });
+    await flushSafe();
+
+    // 4. Quotes that vanished: confirm each one with Jobber before marking it deleted.
+    for (const id of missing) {
+      const cur = S.quotes[id];
+      const gid = btoa("gid://Jobber/Quote/" + id);
+      try { await call("get_quote", { quoteId: gid }); }   // still exists (outside the list window): leave it
+      catch (e) {
+        if (e instanceof StopSync) throw e;
+        if (/not.?found|no quote|does not exist|couldn.?t find|could not find/i.test(String(e.message || ""))) {
+          (pendingQ[bucketOf(cur.c)] ||= {})[id] = { del: true }; cur.del = true; deleted++;
+        } else failed++;
+      }
+    }
+    await flushSafe();
+    S.meta = { at: new Date().toISOString(), count: listed.length, failed, deleted, by: S.myName || "" };
+    await S.db.doc("meta/sync").set(S.meta);
+  } catch (e) {
+    S.error = e instanceof StopSync ? e.message : "Refresh stopped: " + ((e && (e.message || e.code)) || e) + ". What was read so far is saved. Click Refresh to continue.";
+    try { await flush(pendingQ, pendingC); } catch {}
+  } finally {
+    clearInterval(renew);
+    S.syncing = false; S.prog = null; render();
+  }
+  async function flushSafe() {
+    try { await flush(pendingQ, pendingC); }
+    catch (e) { if (e && e.code === "quota_exceeded") throw new StopSync("The saved-data limit for this page is full. Tell Claude."); throw e; }
+  }
+}
+
+// ---------- boot
+for (const id of ["#fPeriod", "#fFrom", "#fTo", "#fRep", "#fDiv", "#fSrc"]) $(id).addEventListener("change", render);
+window.addEventListener("hashchange", render);
+$("#syncBtn").addEventListener("click", () => sync(true));
+render();
+
+(async () => {
+  const use = n => (window.claude && typeof window.claude.use === "function") ? window.claude.use(n).catch(() => null) : Promise.resolve(null);
+  const [db, mcp, user] = await Promise.all([use("db"), use("mcp"), use("user")]);
+  S.db = db; S.mcp = mcp; S.user = user;
+  if (user) {
+    try { const me = await user.me(); S.myName = (me && me.name) || null; } catch {}
+    try { const cw = await user.can("data.write"); S.canWrite = cw !== false; } catch {}
+  }
+  if (!db) { S.loaded.quotes = true; render(); return; }
+  const timer = setTimeout(() => { if (!S.loaded.quotes) { S.loaded.quotes = true; S.error = "Saved numbers are taking a while to load. They'll appear when they arrive."; render(); } }, 10000);
+  const onErr = e => { S.error = "Lost the connection to saved data (" + (e && e.code) + "). Reload the page."; render(); };
+  db.collection("quotes").onSnapshot(snap => {
+    if (S.syncing) { for (const d of snap.docs) S.bucketsSeen.add(d.id); return; } // our own writes; local state is already current
+    const next = {};
+    for (const d of snap.docs) { S.bucketsSeen.add(d.id); const qmap = (d.data() || {}).q || {}; for (const [id, q] of Object.entries(qmap)) next[id] = q; }
+    S.quotes = next;
+    if (!snap.metadata.fromCache) { S.loaded.quotes = true; clearTimeout(timer); maybeAutoSync(); }
+    render();
+  }, onErr);
+  db.collection("clients").onSnapshot(snap => {
+    if (S.syncing) { for (const d of snap.docs) S.clientBucketsSeen.add(d.id); return; }
+    const next = {};
+    for (const d of snap.docs) { S.clientBucketsSeen.add(d.id); Object.assign(next, (d.data() || {}).c || {}); }
+    S.clients = next; render();
+  }, onErr);
+  db.doc("meta/sync").onSnapshot(d => { if (!S.syncing) { S.meta = d.exists ? d.data() : null; if (S.loaded.quotes) maybeAutoSync(); render(); } }, onErr);
+  db.doc("settings/overrides").onSnapshot(d => { S.overrides = (d.exists && d.data().o) || {}; render(); }, onErr);
+  db.doc("settings/goals").onSnapshot(d => { S.goals = (d.exists && d.data().g) || {}; render(); }, onErr);
+  db.doc("settings/manual").onSnapshot(d => { S.manual = (d.exists && d.data().m) || {}; render(); }, onErr);
+})();
+
+let autoTried = false;
+function maybeAutoSync() {
+  if (autoTried || !S.mcp || !S.meta || !S.meta.at || S.syncing) return;
+  if (Date.now() - new Date(S.meta.at) < AUTO_REFRESH_MIN * 60000) return;
+  autoTried = true; setTimeout(() => sync(false), 1500);
+}
+})();
+</script>

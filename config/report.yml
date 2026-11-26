@@ -1,0 +1,16 @@
+# Who gets the daily sales email.
+# Edit this file on GitHub (pencil icon), then click "Commit changes".
+
+# Owners get the company summary: totals, leaderboard, Direct vs Contractor.
+owners:
+  - ""            # put Wilbur's email here
+  - ""            # put Elmer's email here
+
+# Each salesperson gets their own numbers and their follow-up list.
+# The name must match the salesperson name in Jobber exactly.
+salespeople:
+  "Wilbur Miller": ""
+  "Jackson Price": ""
+
+# Open quotes this many days old show up on the follow-up list.
+follow_up_after_days: 7

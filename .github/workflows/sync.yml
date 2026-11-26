@@ -1,0 +1,26 @@
+name: Sync Jobber
+# Copies every quote from Jobber into the database once an hour.
+# If it fails, GitHub emails the repo owner automatically.
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+concurrency:
+  group: jobber-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m salesync sync
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JOBBER_CLIENT_ID: ${{ secrets.JOBBER_CLIENT_ID }}
+          JOBBER_CLIENT_SECRET: ${{ secrets.JOBBER_CLIENT_SECRET }}
+          JOBBER_API_VERSION: ${{ vars.JOBBER_API_VERSION }}

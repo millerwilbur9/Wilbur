@@ -1,0 +1,34 @@
+name: Daily sales email
+# Monday-Saturday at 11:05 UTC = 6:05 AM Eastern in winter, 7:05 AM in summer.
+on:
+  schedule:
+    - cron: "5 11 * * 1-6"
+  workflow_dispatch:
+concurrency:
+  group: jobber-sync
+  cancel-in-progress: false
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JOBBER_CLIENT_ID: ${{ secrets.JOBBER_CLIENT_ID }}
+      JOBBER_CLIENT_SECRET: ${{ secrets.JOBBER_CLIENT_SECRET }}
+      JOBBER_API_VERSION: ${{ vars.JOBBER_API_VERSION }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Fresh sync before the email
+        run: python -m salesync sync
+        continue-on-error: true   # the email still goes out, with a warning banner
+      - run: python -m salesync report
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          REPORT_FROM: ${{ secrets.REPORT_FROM }}
