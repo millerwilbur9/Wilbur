@@ -1,0 +1,295 @@
+<title>SmartStyle Dashboard Decision</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: single reading column, verdict first, then evidence, options, plan. Black/blue/white brand. */
+:root{
+  --bg:#ffffff; --surface:#f3f6fb; --ink:#0b1220; --muted:#4a5568; --line:#d9e1ec;
+  --blue:#0a5bd8; --blue-soft:#e6efff; --good:#137a3f; --good-soft:#e3f5ea;
+  --warn:#9a5b00; --warn-soft:#fff3dc; --bad:#b42318; --bad-soft:#fde8e6;
+  --display:"Space Grotesk",system-ui,sans-serif; --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0a0f1a; --surface:#121a2a; --ink:#eef2f8; --muted:#a3afc2; --line:#24304a;
+  --blue:#5b9bff; --blue-soft:#14264a; --good:#5fd08f; --good-soft:#11301f;
+  --warn:#f0b450; --warn-soft:#33260c; --bad:#ff7a6e; --bad-soft:#3a1714; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a0f1a; --surface:#121a2a; --ink:#eef2f8; --muted:#a3afc2; --line:#24304a;
+  --blue:#5b9bff; --blue-soft:#14264a; --good:#5fd08f; --good-soft:#11301f;
+  --warn:#f0b450; --warn-soft:#33260c; --bad:#ff7a6e; --bad-soft:#3a1714; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+.wrap{max-width:900px;margin:0 auto;padding-block:40px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--display);line-height:1.2;text-wrap:balance;margin:0}
+h1{font-size:2.3rem;letter-spacing:-.01em}
+h2{font-size:1.55rem;padding-top:8px;border-top:3px solid var(--ink)}
+h3{font-size:1.15rem}
+p{margin:0}
+section{display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+.lede{font-size:1.1rem;color:var(--muted);max-width:65ch}
+.verdict{background:var(--ink);color:var(--bg);border-radius:6px;padding:28px;display:flex;flex-direction:column;gap:14px}
+.verdict h2{border:0;padding:0;color:var(--bg)}
+.verdict ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.verdict strong{color:var(--bg)}
+ul,ol{margin:0;padding-left:1.2em}
+li+li{margin-top:6px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.fact{background:var(--surface);border-left:4px solid var(--blue);padding:16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.fact .num{font-family:var(--display);font-size:1.9rem;font-weight:700;font-variant-numeric:tabular-nums}
+.fact p{font-size:.93rem;color:var(--muted)}
+.fact p b{color:var(--ink)}
+.option{border:1px solid var(--line);border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:12px}
+.option.top{border:2px solid var(--blue)}
+.ohead{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+.rank{font-family:var(--display);font-size:2rem;font-weight:700;color:var(--blue);font-variant-numeric:tabular-nums}
+.ohead h3{flex:1;min-width:200px}
+.pill{font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.p-good{background:var(--good-soft);color:var(--good)}.p-warn{background:var(--warn-soft);color:var(--warn)}.p-bad{background:var(--bad-soft);color:var(--bad)}.p-blue{background:var(--blue-soft);color:var(--blue)}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 16px;font-size:.94rem}
+.kv dt{font-weight:600;color:var(--muted)}.kv dd{margin:0;min-width:0}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cols>div{min-width:0}
+.cols h4{margin:0 0 6px;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}
+.plus h4{color:var(--good)}.minus h4{color:var(--bad)}
+.cols ul{font-size:.94rem}
+a{color:var(--blue);text-underline-offset:2px}
+a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:.88rem}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+thead th{background:var(--surface);font-family:var(--display);font-size:.85rem}
+tbody th{font-weight:600}
+td.y{color:var(--good);font-weight:700}td.n{color:var(--bad);font-weight:700}td.m{color:var(--warn);font-weight:700}td.q{color:var(--muted);font-weight:700}
+.note{background:var(--warn-soft);border-left:4px solid var(--warn);padding:14px 16px;font-size:.94rem}
+.spec{background:var(--surface);border-radius:6px;padding:20px}
+.spec dl{display:grid;grid-template-columns:110px 1fr;gap:8px 16px;margin:0}
+.spec dt{font-weight:700}.spec dd{margin:0;min-width:0}
+.phase{display:grid;grid-template-columns:120px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.phase .when{font-family:var(--display);font-weight:700;color:var(--blue)}
+.phase>div{min-width:0}
+.qs{columns:2;column-gap:32px;font-size:.94rem}
+.qs li{break-inside:avoid}
+.small{font-size:.85rem;color:var(--muted)}
+.tag{font-size:.7rem;font-weight:700;padding:1px 7px;border-radius:4px;vertical-align:1px;margin-left:4px;white-space:nowrap}
+.t-v{background:var(--good-soft);color:var(--good)}.t-c{background:var(--warn-soft);color:var(--warn)}.t-u{background:var(--bad-soft);color:var(--bad)}
+@media (max-width:640px){.cols{grid-template-columns:1fr}.kv{grid-template-columns:1fr}.kv dt{margin-top:6px}.phase{grid-template-columns:1fr;gap:4px}.qs{columns:1}.spec dl{grid-template-columns:1fr}h1{font-size:1.8rem}}
+</style>
+
+<div class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:12px">
+  <div class="eyebrow">SmartStyle Seamless Gutters · Sales reporting decision · Nov 26, 2026</div>
+  <h1>Replacing the 31-tab Google Sheet</h1>
+  <p class="lede">I researched the Jobber App Marketplace, BI tools, data connectors and custom builds, and checked your live Jobber quote data. Below is what to buy, what to skip, and the order to do it in.</p>
+  <p class="small">How to read the tags: <span class="tag t-v">Verified</span> confirmed by Jobber's own docs, more than one source, or your own Jobber data. <span class="tag t-c">Vendor claim</span> the vendor says it and nobody independent confirms it. <span class="tag t-u">Unverified</span> I couldn't confirm it, so test it or ask in writing.</p>
+</header>
+
+<section class="verdict">
+  <div class="eyebrow" style="color:var(--blue)">The answer</div>
+  <h2>No ready-made product does everything on your list. Don't buy one hoping it will.</h2>
+  <p>I found nothing built for Jobber that lets you lock in your own close-rate formula, separates Direct from Contractor sales, catches archived and deleted quotes, and emails each rep a daily report. Every product that claims a Jobber integration covers part of the list. Some cover a small part.</p>
+  <ol>
+    <li><strong>Fix two data habits first (this week, free).</strong> No software can fix them for you. See "What your Jobber data shows" below.</li>
+    <li><strong>Test the cheap options for 2 weeks:</strong> Jobber's own Custom Reports and Sales Pipeline, plus Crew Insight. If one gets an October rep-by-rep close rate exactly right, you may not need anything else.</li>
+    <li><strong>If neither passes (likely), pay a Jobber specialist to build a reporting database you own, with a set price:</strong> Jobber → database → Looker Studio dashboards. Expect <strong>$5,000–$15,000 to build</strong> and roughly <strong>$150–$500/month</strong> for hosting and support. It's the only option that meets every requirement, and it's what the Jobber API pushes anyone doing serious reporting toward.</li>
+    <li><strong>Add AccuInsight ($29/mo) for follow-up</strong> if Hannah needs a list of unanswered quotes before the custom build is done.</li>
+  </ol>
+  <p>You said you'd rather buy than build. I agree with that rule, but here it costs you money: no product exists that meets your requirements. The middle path is to hire the build, own the result, and write a support agreement into the contract.</p>
+</section>
+
+<section>
+  <h2>What your Jobber data shows</h2>
+  <p>I pulled your 2026 quotes directly from Jobber. These four findings matter more than which software you pick, because any tool you buy will either make the same mistakes or carry the same blind spots.</p>
+  <div class="facts">
+    <div class="fact"><div class="num">100+</div><p><b>Quotes still "Awaiting response," going back to late August.</b> The first page of results had 100, and there are more. Only 17 quotes were archived all year. Almost nothing ever gets marked lost, so your follow-up list is mostly dead quotes, and you have no record of why you lose deals.</p></div>
+    <div class="fact"><div class="num">3 of 8</div><p><b>Quotes currently marked "Approved" have no sent date</b> (#2031, #2024, #2023). They were closed at the kitchen table and never emailed. A tool that counts "quotes sent" leaves out your best closes. This also breaks the schema I built you earlier; see the note at the bottom.</p></div>
+    <div class="fact"><div class="num">8</div><p><b>Quotes in all of 2026 that still say "Approved."</b> Approved quotes move to "Converted" once a job is created. A tool that counts only "Approved" as a win will report a close rate that's far too low. Ask every vendor about this.</p></div>
+    <div class="fact"><div class="num">~850</div><p><b>Quotes this year</b> (quote numbers ran from about #1216 in late February to #2031 on Nov 25). At $10M you'd write roughly 3,500 a year, which is still small. The size of your data isn't the risk. Getting every quote change into the reports correctly is.</p></div>
+  </div>
+  <p>One more edge case: quote #1867 has an approval date but its status is back to "Awaiting response." An approval was undone. A good system has to handle that kind of reversal.</p>
+  <div class="note"><b>Your formula as written:</b> approved ÷ (approved + awaiting + lost). Because nobody archives dead quotes, that works out to roughly approved ÷ everything quoted. The math is fine. But until stale quotes get closed out, your "outstanding quotes" number is inflated and your lost-reason reports will be empty, whatever software you use.</div>
+</section>
+
+<section>
+  <h2>Why your Sheet keeps breaking</h2>
+  <p>It isn't bad luck. The tools feeding it can't see everything that happens to a quote.</p>
+  <ul>
+    <li><b>Zapier only sees three quote events:</b> new quote, quote sent, quote approved. It never sees a quote being archived, edited or deleted. <span class="tag t-v">Verified</span> (<a href="https://help.zapier.com/hc/en-us/articles/40859679162381-How-to-get-started-with-Jobber-on-Zapier" target="_blank" rel="noopener">Zapier's Jobber guide</a>). Anything built on Zapier, including Airtable through Zapier, has the same blind spot.</li>
+    <li><b>Jobber's webhooks (instant notices sent when a record changes) can send the same notice twice, contain only an ID, and get switched off</b> if your receiver is slow or throws errors. Jobber publishes no retry schedule. <span class="tag t-v">Verified</span> (<a href="https://developer.getjobber.com/docs/using_jobbers_api/setting_up_webhooks/" target="_blank" rel="noopener">Jobber webhook docs</a>, <a href="https://hookdeck.com/webhooks/platforms/guide-to-jobber-webhooks-features-and-best-practices" target="_blank" rel="noopener">Hookdeck guide</a>). That means anything relying only on webhooks will eventually miss changes.</li>
+    <li><b>The Jobber API caps how fast you can pull data:</b> a budget of 10,000 points that refills at 500 per second, plus 2,500 requests per 5 minutes. <span class="tag t-v">Verified</span> (<a href="https://developer.getjobber.com/docs/using_jobbers_api/api_rate_limits/" target="_blank" rel="noopener">Jobber rate limits</a>). One integrator measured a single dashboard load at 13,000–20,000 points <span class="tag t-c">Vendor claim</span> (<a href="https://www.adeocode.com/blog/jobber-api-rate-limits-what-you-can-actually-build/" target="_blank" rel="noopener">Adeocode</a>). So dashboards can't read Jobber live. They need their own copy of the data.</li>
+    <li><b>Google Sheets can't stop duplicates.</b> Nothing in a Sheet forces one row per Jobber quote, so duplicates and blank rows creep in.</li>
+  </ul>
+  <p><b>What any dependable system has to do:</b> (1) record webhooks so changes show up fast, (2) re-check every quote against Jobber each night to catch misses, archives and deletes, (3) store everything in a real database where each Jobber ID can appear only once, and (4) alert someone when a sync fails. If a vendor can't explain how they do all four, don't buy it.</p>
+</section>
+
+<section>
+  <h2>The five best options, ranked</h2>
+
+  <article class="option top">
+    <div class="ohead"><span class="rank">1</span><h3>A reporting database you own, built by a Jobber API specialist</h3><span class="pill p-good">Recommended</span></div>
+    <p>A specialist builds a small system: Jobber data flows (webhooks plus a nightly re-check) into a managed Postgres database, and Looker Studio dashboards read from it. You own the code and the data. Your close-rate formula is written down once and every report uses it.</p>
+    <dl class="kv">
+      <dt>How it connects</dt><dd>Jobber's official GraphQL API plus webhooks, with a nightly re-check of every quote. All four requirements above are met by design.</dd>
+      <dt>Build cost</dt><dd>$5,000–$15,000 one-time. Adeocode says small builds "start around $5,000" and a full reporting layer costs more <span class="tag t-c">Vendor claim</span>. One Power BI shop advertises fixed-scope jobs from $2,500 at $100/hr <span class="tag t-c">Vendor claim</span>.</dd>
+      <dt>Monthly cost</dt><dd>Database hosting about $25–$50. Looker Studio is free; Pro is $9/user <span class="tag t-v">Verified</span>. Support agreement roughly $150–$400 <span class="tag t-u">My estimate</span>.</dd>
+      <dt>Jobber plan</dt><dd>Several sources say API access requires Jobber Plus (about $399–$529/mo billed annually) <span class="tag t-c">Third-party</span>. Your current Sheet sync already uses the API, so check which plan you're on before you budget.</dd>
+      <dt>Replaces the Sheet?</dt><dd><b>Yes, completely.</b></dd>
+      <dt>Who to talk to</dt><dd><a href="https://www.adeocode.com/services/jobber-reporting/" target="_blank" rel="noopener">Adeocode, Jobber reporting</a> · <a href="https://easypowerbidashboards.com/jobber-power-bi-dashboard" target="_blank" rel="noopener">Easy Power BI Dashboards</a> · Quentin, if he's done API work before (ask for proof)</dd>
+    </dl>
+    <div class="cols">
+      <div class="plus"><h4>Advantages</h4><ul><li>The only option that meets every requirement</li><li>Your formula, your divisions, your definitions</li><li>Daily per-rep emails through Looker Studio's scheduled delivery</li><li>History is stored for good, even if Jobber changes or you leave it</li><li>Manual entries get their own clearly marked table</li></ul></div>
+      <div class="minus"><h4>Risks</h4><ul><li>Only as good as the builder. A weak builder just gives you a fancier version of the Sheet</li><li>Breaks if the builder leaves and there's no documentation or support agreement</li><li>Jobber API changes need upkeep (that's why you need the support agreement)</li><li>4–6 weeks before it's live</li></ul></div>
+    </div>
+    <p class="small"><b>Reliability:</b> high, if the contract requires a nightly re-check, failure alerts and written documentation. <b>Scalability:</b> handles $10M+ easily, since your quote volume is small for a database.</p>
+  </article>
+
+  <article class="option">
+    <div class="ohead"><span class="rank">2</span><h3>Jobber Plus built-in tools: Sales Pipeline, Custom Reports, Insights</h3><span class="pill p-blue">Keep using, won't replace the Sheet</span></div>
+    <p>Nothing to sync, so nothing can break between systems. That's its biggest strength. It's the right tool for day-to-day pipeline work. It won't be your scorecard.</p>
+    <dl class="kv">
+      <dt>How it connects</dt><dd>Native. The reports read your Jobber data directly.</dd>
+      <dt>What's included</dt><dd><b>Sales Pipeline:</b> included on Plus, $49/mo add-on on other plans; lost reasons are optional; won/lost deals go to a "Sales Outcomes" report <span class="tag t-v">Verified</span>. <b>Custom Report Builder:</b> Plus only, admins only, AI-built. Jobber's own help page warns it "can make mistakes," and reports time out after 5 minutes <span class="tag t-v">Verified</span>. <b>Business Goals</b> under Insights can track close-rate targets <span class="tag t-c">Forum post, about 2 years old</span>. The <b>Report Scheduler</b> app (free) emails standard reports on a schedule <span class="tag t-v">Verified</span>.</dd>
+      <dt>Price</dt><dd>Plus is about $399/mo (5 users) to $529/mo (15 users) billed annually <span class="tag t-c">Third-party, check Jobber's pricing page</span>.</dd>
+      <dt>Replaces the Sheet?</dt><dd><b>No, only partly.</b> You can't lock in your exact formula. I found nothing confirming rep-by-rep close rates over custom date ranges, and nothing on daily per-rep dashboard emails. One review says reports are desktop-only.</dd>
+      <dt>Link</dt><dd><a href="https://www.getjobber.com/features/sales-pipeline/" target="_blank" rel="noopener">Sales Pipeline</a> · <a href="https://help.getjobber.com/en/articles/sales-pipeline/" target="_blank" rel="noopener">Pipeline help</a> · <a href="https://help.getjobber.com/en/articles/create-a-custom-report-with-jobber-ai/" target="_blank" rel="noopener">Custom reports with Jobber AI</a> · <a href="https://help.getjobber.com/hc/en-us/articles/30100867609367-Insights-Dashboard" target="_blank" rel="noopener">Insights dashboard</a></dd>
+    </dl>
+    <p class="small"><b>Reliability:</b> high, because there's no sync. <b>Accuracy for your formula:</b> uncertain. AI-built reports can define "conversion" differently every time someone asks.</p>
+  </article>
+
+  <article class="option">
+    <div class="ohead"><span class="rank">3</span><h3>Crew Insight</h3><span class="pill p-warn">Trial before deciding</span></div>
+    <p>A Jobber Marketplace app that started as a KPI dashboard and now sells mainly as commission and performance-pay software.</p>
+    <dl class="kv">
+      <dt>How it connects</dt><dd>Jobber Marketplace app, so it uses the Jobber API <span class="tag t-v">Verified</span>. I found nothing on how often it syncs, whether it imports history, or how it handles archived and deleted quotes <span class="tag t-u">Unverified</span>.</dd>
+      <dt>Price</dt><dd>A flat monthly rate per active crew member, no setup fee. The actual number is only given on a setup call. A forum user mentioned a 14-day trial <span class="tag t-c">Vendor/forum</span>.</dd>
+      <dt>Replaces the Sheet?</dt><dd><b>Unknown.</b> Forum users liked the KPI side, but those posts are about two years old and the product has shifted toward commissions.</dd>
+      <dt>Link</dt><dd><a href="https://crew-insight.com/" target="_blank" rel="noopener">crew-insight.com</a> · <a href="https://community.getjobber.com/discussions/integrations/crew-insight--new-kpi-dashboard-in-jobber-app-marketplace/648" target="_blank" rel="noopener">Jobber community thread</a></dd>
+    </dl>
+    <p class="small"><b>Why it's worth a trial anyway:</b> it's built for Jobber, it's maintained by someone else, and commission tracking could help you pay Jackson by close rate later. Being priced per crew member is a poor fit when you mainly need sales reporting.</p>
+  </article>
+
+  <article class="option">
+    <div class="ohead"><span class="rank">4</span><h3>AccuInsight by OwnerView</h3><span class="pill p-blue">Cheap follow-up add-on</span></div>
+    <p>A simple dashboard that flags quotes sent but never approved and totals their dollar value, along with old invoices and unscheduled jobs.</p>
+    <dl class="kv">
+      <dt>How it connects</dt><dd>Jobber's official API, read-only <span class="tag t-c">Vendor claim</span>. CSV export on each section.</dd>
+      <dt>Price</dt><dd><b>$29/month</b>, one plan, no per-user fees, 14-day free trial with no card <span class="tag t-c">Vendor page</span>.</dd>
+      <dt>Replaces the Sheet?</dt><dd><b>No.</b> It has no close-rate formula, no divisions and no leaderboards. Use it as Hannah's Thursday Lead Recovery list.</dd>
+      <dt>Link</dt><dd><a href="https://app.ownerview.io/jobber" target="_blank" rel="noopener">app.ownerview.io/jobber</a></dd>
+    </dl>
+  </article>
+
+  <article class="option">
+    <div class="ohead"><span class="rank">5</span><h3>Microsoft Power BI, as the dashboard tool on top of option 1</h3><span class="pill p-warn">Only with a database under it</span></div>
+    <p>A strong dashboard tool, but it has no Jobber connector. Without a database feeding it, it ends up reading a Sheet again.</p>
+    <dl class="kv">
+      <dt>Price</dt><dd>Power BI Pro is <b>$14/user/month</b> since April 2025 <span class="tag t-v">Verified</span>. Every rep who views a dashboard needs a license.</dd>
+      <dt>Compared with Looker Studio</dt><dd>More powerful, but costs more and takes more skill to maintain. Pick it only if you already run Microsoft 365. Otherwise use Looker Studio: it's free, works with your Google accounts, and emails scheduled reports.</dd>
+      <dt>Link</dt><dd><a href="https://www.microsoft.com/power-platform/products/power-bi/pricing" target="_blank" rel="noopener">Power BI pricing</a> · <a href="https://cloud.google.com/looker-studio" target="_blank" rel="noopener">Looker Studio</a></dd>
+    </dl>
+  </article>
+</section>
+
+<section>
+  <h2>Ruled out, and why</h2>
+  <ul>
+    <li><b>Commercient:</b> syncs accounting and ERP systems with Jobber (customers, items, orders, invoices). I found no reporting or dashboard product for Jobber. Wrong tool. (<a href="https://www.commercient.com/product/sage-500-jobber/" target="_blank" rel="noopener">example page</a>)</li>
+    <li><b>Airtable:</b> its only Jobber connection is through Zapier, with the same three quote events. That rebuilds your Sheet problem in a nicer-looking app. (<a href="https://zapier.com/apps/airtable/integrations/jobber" target="_blank" rel="noopener">Zapier listing</a>)</li>
+    <li><b>Looker Studio connected straight to Jobber:</b> there's no direct connector. It needs a Sheet or a database underneath. It's a good choice as the dashboard layer in option 1.</li>
+    <li><b>Windsor.ai, Fivetran, Airbyte, Coupler.io and similar data connectors:</b> none of them offers a Jobber connector. I checked Windsor.ai's full list of 359 connectors directly and Jobber isn't on it. Tray.ai says outright that it has no ready-made Jobber connector.</li>
+    <li><b>Zapier or Make into Sheets:</b> that's your current setup, and it's what keeps breaking.</li>
+    <li><b>Switching to ServiceTitan or JobNimbus:</b> both have built-in close-rate reports by salesperson. You said Jobber stays, and I agree for now. Look at this again if you pass about $8M or 6+ sales reps.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Feature comparison</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Requirement</th><th>1. Own database + Looker</th><th>2. Jobber Plus native</th><th>3. Crew Insight</th><th>4. AccuInsight</th><th>5. Power BI (on #1)</th></tr></thead>
+    <tbody>
+      <tr><th>Automatic Jobber sync</th><td class="y">Yes</td><td class="y">Native</td><td class="y">Yes</td><td class="y">Yes</td><td class="m">Through #1</td></tr>
+      <tr><th>Catches archived/deleted/edited quotes</th><td class="y">Yes, nightly re-check</td><td class="y">Native</td><td class="q">Ask</td><td class="q">Ask</td><td class="m">Through #1</td></tr>
+      <tr><th>Your exact close-rate formula</th><td class="y">Yes</td><td class="m">AI report, inconsistent</td><td class="q">Ask</td><td class="n">No</td><td class="y">Yes</td></tr>
+      <tr><th>Direct vs Contractor</th><td class="y">Yes</td><td class="m">With tags/custom fields</td><td class="q">Ask</td><td class="n">No</td><td class="y">Yes</td></tr>
+      <tr><th>Per-rep dashboards</th><td class="y">Yes</td><td class="m">Partial</td><td class="m">Likely</td><td class="n">No</td><td class="y">Yes</td></tr>
+      <tr><th>Leaderboards</th><td class="y">Yes</td><td class="n">No</td><td class="m">Likely</td><td class="n">No</td><td class="y">Yes</td></tr>
+      <tr><th>Goals vs actual</th><td class="y">Yes</td><td class="m">Business Goals</td><td class="q">Ask</td><td class="n">No</td><td class="y">Yes</td></tr>
+      <tr><th>Lead source conversion</th><td class="y">Yes</td><td class="m">Partial</td><td class="q">Ask</td><td class="n">No</td><td class="y">Yes</td></tr>
+      <tr><th>Avg quote / avg sale</th><td class="y">Yes</td><td class="y">Yes</td><td class="q">Ask</td><td class="n">No</td><td class="y">Yes</td></tr>
+      <tr><th>Open quotes / follow-up</th><td class="y">Yes</td><td class="y">Pipeline</td><td class="q">Ask</td><td class="y">Yes</td><td class="y">Yes</td></tr>
+      <tr><th>Year-over-year history</th><td class="y">Yes</td><td class="m">Partial</td><td class="q">Ask</td><td class="n">No</td><td class="y">Yes</td></tr>
+      <tr><th>Daily email to each rep</th><td class="y">Scheduled delivery</td><td class="m">Standard reports only</td><td class="q">Ask</td><td class="n">No</td><td class="m">Needs Pro setup</td></tr>
+      <tr><th>Mobile</th><td class="y">Yes</td><td class="m">Reports desktop-first</td><td class="q">Ask</td><td class="q">Ask</td><td class="y">App</td></tr>
+      <tr><th>Manual entries</th><td class="y">Separate table</td><td class="n">No</td><td class="q">Ask</td><td class="n">No</td><td class="y">Through #1</td></tr>
+      <tr><th>No duplicates / recovers from sync failures</th><td class="y">By design</td><td class="y">No sync needed</td><td class="q">Ask</td><td class="q">Ask</td><td class="m">Through #1</td></tr>
+      <tr><th>Monthly cost</th><td>~$150–$500</td><td>On Plus already?</td><td>Per crew member, unpublished</td><td>$29</td><td>+$14/user</td></tr>
+      <tr><th>Setup cost</th><td>$5k–$15k</td><td>$0</td><td>None stated</td><td>$0</td><td>Included in #1</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">"Ask" means I couldn't confirm it either way. Make the vendor prove it during the trial using your own October numbers.</p>
+</section>
+
+<section>
+  <h2>Ready-made vs. custom</h2>
+  <div class="cols">
+    <div><h3>Ready-made (Jobber native, Crew Insight, AccuInsight)</h3><ul><li>Cheap and quick to start</li><li>Someone else maintains it</li><li>Uses their definitions, not yours</li><li>You can't see how they handle archived, deleted or reversed quotes, and with your data those cases matter</li><li>If the company shuts down or changes direction, your reporting goes with it</li></ul></div>
+    <div><h3>Custom database + dashboard tool</h3><ul><li>Costs more up front</li><li>Your formula, divisions and history, all in your control</li><li>Only as reliable as the builder and the support agreement</li><li>Moves with you if you ever leave Jobber</li><li>It's what the Jobber API's own limits push you toward</li></ul></div>
+  </div>
+  <p><b>What bigger Jobber companies do:</b> I found no published case study of a $10M Jobber company's reporting setup, so this part is inference. The integrators who serve larger Jobber shops (Adeocode and the Power BI firms) all describe the same thing: copy Jobber into a separate database in the background and put a dashboard tool on top. Companies that outgrow that usually move to ServiceTitan, which has close-rate reporting built in.</p>
+</section>
+
+<section>
+  <h2>Write your rules down before anyone builds anything</h2>
+  <p>Give this to every vendor and builder. If their numbers don't match these rules, they fail.</p>
+  <div class="spec"><dl>
+    <dt>Won</dt><dd>The quote has an approval date, or its status is Approved or Converted. A quote that was approved and later archived still counts as won.</dd>
+    <dt>Open</dt><dd>Awaiting response or Changes requested, and never approved.</dd>
+    <dt>Lost</dt><dd>Marked lost in the Sales Pipeline, or archived without ever being approved.</dd>
+    <dt>Left out</dt><dd>Drafts, $0 quotes (for example #1850), deleted quotes, and anything you exclude by hand with a written reason.</dd>
+    <dt>Which date</dt><dd>The date the quote was presented: the sent date, or the approval date if it was closed at the table without being sent. Never the date the quote was created.</dd>
+    <dt>Close rate</dt><dd>Won ÷ (Won + Open + Lost) for quotes presented in the period. This is your formula, with clear definitions.</dd>
+    <dt>Division</dt><dd>Decide how a quote gets labeled Direct or Contractor: a Jobber client tag, a custom field, or the client type. Use one rule. Hannah sets it at intake.</dd>
+    <dt>Stale rule</dt><dd>Any quote awaiting response for 45 days with no reply gets archived as lost, with a reason. Keep Hannah's Thursday recovery calls going, but stop counting these as open quotes.</dd>
+  </dl></div>
+</section>
+
+<section>
+  <h2>Implementation and migration plan</h2>
+  <div>
+    <div class="phase"><div class="when">This week</div><div><b>Clean up and define.</b> Agree on the rules above with Elmer. Clear out the 100+ stale quotes: archive the dead ones with a reason and move the live ones to Lead Recovery. Make sure every quote has a salesperson and every client has a lead source and division. Find out which Jobber plan you're on.</div></div>
+    <div class="phase"><div class="when">Weeks 1–2</div><div><b>Run the trials side by side.</b> Have Jobber Custom Reports and Crew Insight each produce the October close rate by rep and by division. Compare both to a hand count of 20 quotes. Pass means exact matches. If one passes, stop there and add AccuInsight if you want a follow-up list.</div></div>
+    <div class="phase"><div class="when">Weeks 3–8</div><div><b>Hire the build</b> (if the trials fail). Fixed price. Your rules go into the contract. Requirements: nightly re-check, failure alerts to you by email, documentation, you own the code and the database account, and a 12-month support agreement. Include importing all past quotes back to your first Jobber quote.</div></div>
+    <div class="phase"><div class="when">Weeks 9–12</div><div><b>Run both for 30 days.</b> Keep the Sheet going alongside the new system. Every Friday, compare 10 random quotes. Fewer than 1 in 200 mismatches, with each one explained, means sign-off.</div></div>
+    <div class="phase"><div class="when">Cutover</div><div><b>Turn off the Sheet's sync and make the Sheet read-only.</b> Keep it as an archive. Turn on the daily per-rep emails. Jackson and every future rep see their own dashboard; you and Elmer see the whole company.</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Questions to ask each provider before you buy</h2>
+  <ol class="qs">
+    <li>When a quote is archived, deleted or edited in Jobber, how long until your system shows it? Show me.</li>
+    <li>Do you use webhooks, scheduled pulls, or both? How often do you re-check everything?</li>
+    <li>If a sync fails, who finds out, and how? Do you fill in missed data automatically?</li>
+    <li>Do you count Converted quotes as won? What about a quote approved at the table that was never sent?</li>
+    <li>Can I set my own close-rate formula, and lock it so it's the same on every report?</li>
+    <li>How do you split Direct from Contractor? Which Jobber field do you use?</li>
+    <li>How far back do you import history? Is that included in the price?</li>
+    <li>How do you prevent duplicate records? What's the unique key?</li>
+    <li>Can each rep get their own report by email every morning?</li>
+    <li>Can I add a deal by hand that isn't in Jobber? How is it labeled?</li>
+    <li>What happens to my data if I cancel? Can I export all of it?</li>
+    <li>Which Jobber plan do I need for your tool to work?</li>
+    <li>What's the total cost at 3 reps, 6 reps and 10 reps?</li>
+    <li>Give me two Jobber customers with more than $2M in revenue I can call.</li>
+    <li>(For builders) Who owns the code and the database account? What does the support agreement cover, and how fast do you respond?</li>
+    <li>(For builders) What happens when Jobber changes its API?</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Limits of this research</h2>
+  <p class="small">This environment blocked direct access to vendor websites, so I couldn't capture screenshots or read every page in full. The findings come from search results that quote those pages, the vendor links above (which have screenshots), Windsor.ai's connector list, and your live Jobber data, which I pulled read-only on Nov 26, 2026. Prices marked "third-party" or "vendor claim" need a written quote. I found no Reddit threads specifically about Jobber sales dashboards. Review sites summarizing user feedback consistently name reporting as Jobber's weak spot for growing companies (<a href="https://fieldcamp.ai/reviews/jobber/" target="_blank" rel="noopener">example</a>).</p>
+</section>
+
+</div>
