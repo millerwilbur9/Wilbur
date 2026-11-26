@@ -1,0 +1,27 @@
+name: Connect Jobber
+# Run this once (and again only if Jobber access is ever revoked).
+on:
+  workflow_dispatch:
+    inputs:
+      code:
+        description: "The code= value from the browser address bar after you click Allow"
+        required: true
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JOBBER_CLIENT_ID: ${{ secrets.JOBBER_CLIENT_ID }}
+      JOBBER_CLIENT_SECRET: ${{ secrets.JOBBER_CLIENT_SECRET }}
+      JOBBER_API_VERSION: ${{ vars.JOBBER_API_VERSION }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m salesync connect --code "$CODE" --redirect-uri "https://localhost/jobber"
+        env:
+          CODE: ${{ inputs.code }}
+      - run: python -m salesync check
+      - run: python -m salesync sync

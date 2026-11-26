@@ -243,8 +243,8 @@ td.y{color:var(--good);font-weight:700}td.n{color:var(--bad);font-weight:700}td.
   <h2>Write your rules down before anyone builds anything</h2>
   <p>Give this to every vendor and builder. If their numbers don't match these rules, they fail.</p>
   <div class="spec"><dl>
-    <dt>Won</dt><dd>The quote has an approval date, or its status is Approved or Converted. A quote that was approved and later archived still counts as won.</dd>
-    <dt>Open</dt><dd>Awaiting response or Changes requested, and never approved.</dd>
+    <dt>Won</dt><dd>Status is Approved or Converted. A quote that was approved and later archived still counts as won.</dd>
+    <dt>Open</dt><dd>Awaiting response or Changes requested. This includes a quote that was approved and then re-opened, like #1867.</dd>
     <dt>Lost</dt><dd>Marked lost in the Sales Pipeline, or archived without ever being approved.</dd>
     <dt>Left out</dt><dd>Drafts, $0 quotes (for example #1850), deleted quotes, and anything you exclude by hand with a written reason.</dd>
     <dt>Which date</dt><dd>The date the quote was presented: the sent date, or the approval date if it was closed at the table without being sent. Never the date the quote was created.</dd>
